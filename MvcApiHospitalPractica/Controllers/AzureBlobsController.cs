@@ -59,7 +59,7 @@ namespace MvcApiHospitalPractica.Controllers
 
             foreach (BlobModel b in blobModels)
             {
-                b.Url = await this.service.GetUrl(containerName, b.Nombre);
+                b.Url = await this.service.GetBlobUriAsync(containerName, b.Nombre);
             }
 
 

@@ -39,7 +39,7 @@ namespace MvcApiHospitalPractica.Services
         {
             //containerName = containerName.ToLower();
             //debemos indicar el nombre del contenedor y su tipo de acceso
-            await this.client.CreateBlobContainerAsync(containerName, PublicAccessType.None);
+            await this.client.CreateBlobContainerAsync(containerName, PublicAccessType.);
 
         }
 
@@ -91,21 +91,29 @@ namespace MvcApiHospitalPractica.Services
             return blob.Uri.AbsoluteUri;
 
         }
-        public async Task<string> GetUrl(string container, string name)
-        {
-            BlobContainerClient containerClient = client.GetBlobContainerClient(container);
-            BlobContainerProperties prop = containerClient.GetProperties();
-            BlobClient blobClient = containerClient.GetBlobClient(name);
-            if (prop.PublicAccess == PublicAccessType.None)
-            {
-                Uri imageUri = blobClient.GenerateSasUri(BlobSasPermissions.Read, DateTimeOffset.UtcNow.AddSeconds(3600));
-                return imageUri.ToString();
-            }
-            else
-            {
-                return blobClient.Uri.AbsoluteUri;
-            }
-        }
+        public async Task<string> GetBlobUriAsync(string container, string blobName)
+        {
+            BlobContainerClient containerClient = client.GetBlobContainerClient(container);
+            BlobClient blobClient = containerClient.GetBlobClient(blobName);
+
+
+
+            var response = await containerClient.GetPropertiesAsync();
+            var properties = response.Value;
+
+
+
+            // Will be private if it's None
+            if (properties.PublicAccess == Azure.Storage.Blobs.Models.PublicAccessType.None)
+            {
+                Uri imageUri = blobClient.GenerateSasUri(BlobSasPermissions.Read, DateTimeOffset.UtcNow.AddSeconds(3600));
+                return imageUri.ToString();
+            }
+
+
+
+            return blobClient.Uri.AbsoluteUri.ToString();
+        }
     }
 }
 
