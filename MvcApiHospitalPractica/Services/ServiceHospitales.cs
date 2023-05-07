@@ -109,7 +109,7 @@ namespace MvcApiHospitalPractica.Services
             return hospital;
         }
         //insert
-        public async Task InsertHospital(int hos_cod, string nombre, string direccion, string telefono, int num_cama)
+        public async Task InsertHospital(int hos_cod, string nombre, string direccion, string telefono, int num_cama, string imagen)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -125,7 +125,8 @@ namespace MvcApiHospitalPractica.Services
                     Nombre = nombre,
                     Direccion = direccion,
                     Telelfono = telefono,
-                    Num_cama = num_cama
+                    Num_cama = num_cama,
+                    Imagen = imagen
                 };
                 //convertimos el objeto a json
                 string json = JsonConvert.SerializeObject(hospital);
@@ -138,7 +139,7 @@ namespace MvcApiHospitalPractica.Services
         }
         //update
 
-        public async Task UpdateHospital(int hos_cod, string nombre, string direccion, string telefono, int num_cama)
+        public async Task UpdateHospital(int hos_cod, string nombre, string direccion, string telefono, int num_cama, string imagen)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -153,7 +154,8 @@ namespace MvcApiHospitalPractica.Services
                     Nombre = nombre,
                     Direccion = direccion,
                     Telelfono = telefono,
-                    Num_cama = num_cama
+                    Num_cama = num_cama, 
+                    Imagen = imagen
                 };
                 //convierto a json el objeto
                 string json = JsonConvert.SerializeObject(hospital);

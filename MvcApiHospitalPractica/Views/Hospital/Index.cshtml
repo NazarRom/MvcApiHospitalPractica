@@ -27,33 +27,40 @@
             <th>
                 @Html.DisplayNameFor(model => model.Num_cama)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Imagen)
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Hospital_cod)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Direccion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Telelfono)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Num_cama)
-            </td>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Hospital_cod)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Direccion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Telelfono)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Num_cama)
+                </td>
+                <td>
+                    <img src="@item.Imagen" style="width:200px; height:200px;"/>
+                </td>
+                <td>
                     @Html.ActionLink("Edit", "Edit", new { id = @item.Hospital_cod }) |
                     @Html.ActionLink("Details", "Details", new { id = @item.Hospital_cod }) |
-                @Html.ActionLink("Delete", "Delete", new { id = @item.Hospital_cod })
-            </td>
-        </tr>
-}
+                    @Html.ActionLink("Delete", "Delete", new { id = @item.Hospital_cod , blobName = item.Imagen})
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

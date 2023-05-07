@@ -25,7 +25,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                       <partial name="_MenuHospitalPartial" />
+
+                        <li class="nav-item">
+                            <a class="nav-link text-danger"
+                               asp-controller="AzureBlobs"
+                               asp-action="ListContainers">
+                                ListBlob
+                            </a>
+                        </li>
+                        <partial name="_MenuHospitalPartial" />
                     </ul>
                 </div>
             </div>

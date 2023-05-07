@@ -8,10 +8,12 @@ namespace MvcApiHospitalPractica.Controllers
     public class HospitalController : Controller
     {
         private ServiceHospitales service;
+        private ServiceStorageBlobs serviceBlobs;
 
-        public HospitalController(ServiceHospitales service)
+        public HospitalController(ServiceHospitales service, ServiceStorageBlobs serviceBlobs)
         {
             this.service = service;
+            this.serviceBlobs = serviceBlobs;
         }
         [AuthorizeHospital]
         public async Task<IActionResult> Perfil()
@@ -26,17 +28,25 @@ namespace MvcApiHospitalPractica.Controllers
         [AuthorizeHospital]
         public async Task<IActionResult> Index()
         {
-            string token = HttpContext.Session.GetString("TOKEN");
+            List<Hospital> hospitales = new();
+            string? token = HttpContext.Session.GetString("TOKEN");
+
             if (token == null)
             {
-                ViewData["MENSAJE"] = "Debe realizar Login para visualizar datos";
-                return View();
-            }else
-            {
-                List<Hospital> hospitals = await this.service.GetHospitalesAsync(token);
-                return View(hospitals);
+                ViewData["MENSAJE"] = "Debe realizar login para visualizar datos";
             }
-            
+            else
+            {
+                hospitales = await this.service.GetHospitalesAsync(token);
+                foreach (var hospital in hospitales)
+                {
+                    if (hospital.Imagen != null)
+                    {
+                        hospital.Imagen = await this.serviceBlobs.FindBlobAsync("blobimages", hospital.Imagen);
+                    }
+                }
+            }
+            return View(hospitales);
         }
         public async Task<IActionResult> Details(int id)
         {
@@ -47,10 +57,22 @@ namespace MvcApiHospitalPractica.Controllers
         {
             return View();
         }
+  
         [HttpPost]
-        public async Task<IActionResult> Create(Hospital hospital)
+        
+        public async Task<IActionResult> Create(CreateHospital hospital)
         {
-            await this.service.InsertHospital(hospital.Hospital_cod, hospital.Nombre, hospital.Direccion, hospital.Telelfono, hospital.Num_cama);
+            string image = hospital.Nombre.ToLower();
+
+            using (Stream stream = hospital.Imagen.OpenReadStream())
+            {
+                await this.serviceBlobs.UploadBlobAsync("blobimages", image, stream);
+            }
+
+            await this.service.InsertHospital(hospital.Hospital_cod, hospital.Nombre, hospital.Direccion, hospital.Telelfono, hospital.Num_cama, image);
+
+
+
             return RedirectToAction("Index");
         }
 
@@ -62,12 +84,14 @@ namespace MvcApiHospitalPractica.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Hospital hospital)
         {
-            await this.service.UpdateHospital(hospital.Hospital_cod, hospital.Nombre, hospital.Direccion, hospital.Telelfono, hospital.Num_cama);
+            await this.service.UpdateHospital(hospital.Hospital_cod, hospital.Nombre, hospital.Direccion, hospital.Telelfono, hospital.Num_cama, hospital.Imagen);
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int id)
         {
+            Hospital hospital = await this.service.FindHospital(id);
+            await this.serviceBlobs.DeleteBlobAsync("blobimages", hospital.Imagen);
             await this.service.DeleteHospital(id);
             return RedirectToAction("Index");
         }
