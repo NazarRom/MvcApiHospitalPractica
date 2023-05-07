@@ -55,8 +55,6 @@ namespace MvcApiHospitalPractica.Controllers
             List<BlobModel> blobModels =
             await this.service.GetBlobsAsync(containerName);
 
-
-
             foreach (BlobModel b in blobModels)
             {
                 b.Url = await this.service.GetBlobUriAsync(containerName, b.Nombre);
@@ -70,7 +68,7 @@ namespace MvcApiHospitalPractica.Controllers
         public async Task<IActionResult> DeleteBlob(string containerName, string blobName)
         {
             await this.service.DeleteBlobAsync(containerName, blobName);
-            return RedirectToAction("ListBlob", new { containerName = containerName });
+            return RedirectToAction("ListBlobs", new { containerName = containerName });
         }
 
         public IActionResult UploadBlob(string containerName)
@@ -87,7 +85,7 @@ namespace MvcApiHospitalPractica.Controllers
             {
                 await this.service.UploadBlobAsync(containerName, blobName, stream);
             }
-            return RedirectToAction("ListBlob", new { containerName = containerName });
+            return RedirectToAction("ListBlobs", new { containerName = containerName });
         }
     }
 }

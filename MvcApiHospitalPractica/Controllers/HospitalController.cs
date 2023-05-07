@@ -42,12 +42,13 @@ namespace MvcApiHospitalPractica.Controllers
                 {
                     if (hospital.Imagen != null)
                     {
-                        hospital.Imagen = await this.serviceBlobs.FindBlobAsync("blobimages", hospital.Imagen);
+                        hospital.Imagen = await this.serviceBlobs.GetBlobUriAsync("privado", hospital.Imagen);
                     }
                 }
             }
             return View(hospitales);
         }
+
         public async Task<IActionResult> Details(int id)
         {
             Hospital hospital = await this.service.FindHospital(id);
@@ -66,7 +67,7 @@ namespace MvcApiHospitalPractica.Controllers
 
             using (Stream stream = hospital.Imagen.OpenReadStream())
             {
-                await this.serviceBlobs.UploadBlobAsync("blobimages", image, stream);
+                await this.serviceBlobs.UploadBlobAsync("privado", image, stream);
             }
 
             await this.service.InsertHospital(hospital.Hospital_cod, hospital.Nombre, hospital.Direccion, hospital.Telelfono, hospital.Num_cama, image);

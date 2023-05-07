@@ -39,7 +39,7 @@ namespace MvcApiHospitalPractica.Services
         {
             //containerName = containerName.ToLower();
             //debemos indicar el nombre del contenedor y su tipo de acceso
-            await this.client.CreateBlobContainerAsync(containerName, PublicAccessType.);
+            await this.client.CreateBlobContainerAsync(containerName, PublicAccessType.None);
 
         }
 
@@ -84,13 +84,13 @@ namespace MvcApiHospitalPractica.Services
             await containerClient.UploadBlobAsync(blobName, stream);
         }
 
-        public async Task<string> FindBlobAsync(string containerName, string blobName)
-        {
-            BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
-           var blob =  containerClient.GetBlobClient(blobName);
-            return blob.Uri.AbsoluteUri;
+        //public async Task<string> FindBlobAsync(string containerName, string blobName)
+        //{
+        //    BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
+        //   var blob =  containerClient.GetBlobClient(blobName);
+        //    return blob.Uri.AbsoluteUri;
 
-        }
+        //}
         public async Task<string> GetBlobUriAsync(string container, string blobName)
         {
             BlobContainerClient containerClient = client.GetBlobContainerClient(container);
