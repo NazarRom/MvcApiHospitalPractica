@@ -1,5 +1,6 @@
 ﻿using MvcApiHospitalPractica.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -15,7 +16,65 @@ namespace MvcApiHospitalPractica.Services
             this.Header = new MediaTypeWithQualityHeaderValue("application/json");
             this.UrlApi = configuration.GetValue<string>("ApiUrl:ApiHospital");
 
-        } 
+        }
+        public async Task<string> GetTokenAsync
+        (string username, string password)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "/api/auth/login";
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                LoginModel model = new LoginModel
+                {
+                    UserName = username,
+                    Password = password
+                };
+                string jsonModel = JsonConvert.SerializeObject(model);
+                StringContent content =
+                    new StringContent(jsonModel, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(request, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    string data =
+                        await response.Content.ReadAsStringAsync();
+                    JObject jsonObject = JObject.Parse(data);
+                    string token =
+                        jsonObject.GetValue("response").ToString();
+                    return token;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        private async Task<T> CallApiAsync<T>
+        (string request, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add
+                    ("Authorization", "bearer " + token);
+                HttpResponseMessage response =
+                    await client.GetAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    T data = await response.Content.ReadAsAsync<T>();
+                    return data;
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+        }
 
         private async Task<T> CallApiAsync<T>(string request)
         {
@@ -36,10 +95,10 @@ namespace MvcApiHospitalPractica.Services
             }
         }
 
-        public async Task<List<Hospital>> GetHospitalesAsync()
+        public async Task<List<Hospital>> GetHospitalesAsync(string token)
         {
             string request = "api/Hospital";
-            List<Hospital> hospitals = await this.CallApiAsync<List<Hospital>>(request);
+            List<Hospital> hospitals = await this.CallApiAsync<List<Hospital>>(request, token);
             return hospitals;
         }
 
@@ -118,6 +177,18 @@ namespace MvcApiHospitalPractica.Services
                 client.DefaultRequestHeaders.Clear();
                 HttpResponseMessage response = await client.DeleteAsync(request);
             }
+        }
+
+        //perfil
+
+        //METODO PROTEGIDO PARA RECUPERAR EL PERFIL
+        public async Task<Hospital> GetPerfilEmpleadoAsync
+            (string token)
+        {
+            string request = "api/hospital/perfilhospital";
+            Hospital empleado = await
+                this.CallApiAsync<Hospital>(request, token);
+            return empleado;
         }
 
     }

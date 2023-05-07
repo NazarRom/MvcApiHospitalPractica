@@ -1,10 +1,23 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using MvcApiHospitalPractica.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
 builder.Services.AddTransient<ServiceHospitales>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -20,10 +33,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.UseSession();
+app.UseMvc(routes =>
+{
+    routes.MapRoute(
+     name: "default",
+    template: "{controller=Home}/{action=Index}/{id?}");
+});
 app.Run();

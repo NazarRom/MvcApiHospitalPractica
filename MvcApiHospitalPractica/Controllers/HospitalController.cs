@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MvcApiHospitalPractica.Filters;
 using MvcApiHospitalPractica.Models;
 using MvcApiHospitalPractica.Services;
 
@@ -12,10 +13,30 @@ namespace MvcApiHospitalPractica.Controllers
         {
             this.service = service;
         }
+        [AuthorizeHospital]
+        public async Task<IActionResult> Perfil()
+        {
+            string token =
+                HttpContext.Session.GetString("TOKEN");
+            Hospital hospital = await
+                this.service.GetPerfilEmpleadoAsync(token);
+            return View(hospital);
+        }
+
+        [AuthorizeHospital]
         public async Task<IActionResult> Index()
         {
-            List<Hospital> hospitals = await this.service.GetHospitalesAsync();
-            return View(hospitals);
+            string token = HttpContext.Session.GetString("TOKEN");
+            if (token == null)
+            {
+                ViewData["MENSAJE"] = "Debe realizar Login para visualizar datos";
+                return View();
+            }else
+            {
+                List<Hospital> hospitals = await this.service.GetHospitalesAsync(token);
+                return View(hospitals);
+            }
+            
         }
         public async Task<IActionResult> Details(int id)
         {
